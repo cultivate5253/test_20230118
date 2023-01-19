@@ -1,25 +1,28 @@
-import express, { Application, Request, Response } from 'express'
+import { configureStore } from "@reduxjs/toolkit";
+import { login, signup, addTweet, sendMessage } from "./actions";
+import { rootReducer } from "./reducers";
 
-const app: Application = express()
+export const store = configureStore({
+reducer: rootReducer,
+});
 
-const PORT = 3000
+// Dispatch actions
+store.dispatch(login("email", "password"));
+store.dispatch(signup("name", "email", "password"));
+store.dispatch(addTweet(parseInt("userId"), "content"));
+store.dispatch(sendMessage(parseInt("senderId"), parseInt("receiverId"), "content"));
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true}))
+// Access state
+console.log(store.getState());
 
-app.get('/', async (_req:Request, res: Response) => {
-	return res.status(200).send({
-		message: 'Hello World!',
-	})
+// Add a change listener to the store
+store.subscribe(() => {
+console.log("State changed: ", store.getState());
+});
 
-})
+// // Dispatch more actions
+// store.dispatch(login("email", "password"));
+// store.dispatch(signup("name", "email", "password"));
+// store.dispatch(addTweet("userId", "content"));
+// store.dispatch(sendMessage("senderId", "receiverId", "content"));
 
-try{
-	app.listen(PORT, () => {
-		console.log(`dev server running at: http://localhost:${PORT}/`)
-	})
-} catch(e) {
-	if (e instanceof Error) {
-		console.error(e.message)
-	}
-}
